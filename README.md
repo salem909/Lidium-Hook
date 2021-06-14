@@ -1,4 +1,4 @@
-# MapleClientCollection
+# MapleClientCollection (Original README)
 
 A (increasingly generic) framework that is intended to be used when crafting new MapleStory client redirectors/edits.  
 This should work pretty much out of the box and all that is required is potential anticheat and crc bypasses. These are version dependant.  
