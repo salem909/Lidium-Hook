@@ -72,19 +72,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)Include;</LibraryPath>
-    <OutDir>$(SolutionDir)Output\$(Configuration)\bin\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Configuration)\$(ProjectName)\</IntDir>
-    <AllProjectIncludesArePublic>false</AllProjectIncludesArePublic>
-    <AllProjectBMIsArePublic>true</AllProjectBMIsArePublic>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)Output\$(Configuration)\bin\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)Include;</LibraryPath>
-    <AllProjectIncludesArePublic>false</AllProjectIncludesArePublic>
-    <AllProjectBMIsArePublic>true</AllProjectBMIsArePublic>
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IncludePath>C:\Users\bcolb\Documents\GitHub\NewHook\CTemplate;C:\Users\bcolb\Documents\GitHub\NewHook\deps;C:\Users\bcolb\Documents\GitHub\NewHook\utils;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -100,7 +93,6 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -116,9 +108,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;COMMON_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>C:\Users\bcolb\Documents\GitHub\NewHook\CTemplate;C:\Users\bcolb\Documents\GitHub\NewHook\utils;C:\Users\bcolb\Documents\GitHub\NewHook\deps;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -164,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
+    <ClInclude Include="commonconfig.h" />
     <ClInclude Include="detours.h" />
     <ClInclude Include="FakeModule.h" />
     <ClInclude Include="hooker.h" />
@@ -171,34 +164,18 @@
     <ClInclude Include="memedit.h" />
     <ClInclude Include="TSecType.h" />
     <ClInclude Include="winhooks.h" />
-    <ClInclude Include="winhook_types.h" />
-    <ClInclude Include="ZAllocAnonSelector.h" />
-    <ClInclude Include="ZAllocBase.h" />
-    <ClInclude Include="ZAllocEx.h" />
-    <ClInclude Include="ZAllocStrSelector.h" />
     <ClInclude Include="ZArray.h" />
-    <ClInclude Include="ZFatalSection.h" />
     <ClInclude Include="ZList.h" />
     <ClInclude Include="ZMap.h" />
-    <ClInclude Include="ZRecyclable.h" />
-    <ClInclude Include="ZRecyclableAvBuffer.h" />
-    <ClInclude Include="ZRecyclableStatic.h" />
+    <ClInclude Include="ZRecycleable.h" />
     <ClInclude Include="ZRef.h" />
-    <ClInclude Include="ZRefCounted.h" />
-    <ClInclude Include="ZRefCountedAccessor.h" />
-    <ClInclude Include="ZRefCountedDummy.h" />
-    <ClInclude Include="ZtlSecure.h" />
     <ClInclude Include="ZXString.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Common.cpp" />
+    <Library Include="detours.lib" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="FakeModule.cpp" />
-    <ClCompile Include="hooker.cpp" />
-    <ClCompile Include="logger.cpp" />
-    <ClCompile Include="memedit.cpp" />
-    <ClCompile Include="winhooks.cpp" />
-    <ClCompile Include="winhook_types.cpp" />
-    <ClCompile Include="ZAllocEx.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

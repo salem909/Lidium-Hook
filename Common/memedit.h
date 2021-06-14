@@ -14,20 +14,44 @@
 #define x86CALL 0xE8
 #define x86NOP 0x90
 
-extern VOID PatchRetZero(DWORD dwAddress);
-extern VOID PatchJmp(DWORD dwAddress, PVOID pDestination);
-extern VOID PatchCall(DWORD dwAddress, PVOID pDestination);
-extern VOID PatchNop(DWORD dwAddress, UINT nCount);
-extern VOID WriteBytes(DWORD dwAddress, const char* pData, UINT nCount);
-
-template <typename TType>
-VOID WriteValue(DWORD dwAddress, TType pValue)
+static VOID PatchRetZero(DWORD dwAddress)
 {
-	*((TType*)dwAddress) = pValue;
+	*(BYTE*)(dwAddress + 0) = x86XOR;
+	*(BYTE*)(dwAddress + 1) = x86EAXEAX;
+	*(BYTE*)(dwAddress + 2) = x86RET;
 }
 
-template <typename TType>
-TType ReadValue(DWORD dwAddr)
+static VOID PatchJmp(DWORD dwAddress, PVOID pDestination)
 {
-	return *((TType*)dwAddr);
+	*(BYTE*)(dwAddress + 0) = x86JMP;
+	*(DWORD*)(dwAddress + 1) = relative_address(dwAddress, pDestination);
+}
+
+static VOID PatchCall(DWORD dwAddress, PVOID pDestination)
+{
+	*(BYTE*)(dwAddress + 0) = x86CALL;
+	*(DWORD*)(dwAddress + 1) = relative_address(dwAddress, pDestination);
+}
+
+static VOID PatchNop(DWORD dwAddress, UINT nCount)
+{
+	for (UINT i = 0; i < nCount; i++)
+		*(BYTE*)(dwAddress + i) = x86NOP;
+}
+
+template <typename T>
+static VOID WriteValue(DWORD dwAddress, T pValue)
+{
+	*((T*)dwAddress) = pValue;
+}
+
+static VOID WriteBytes(DWORD dwAddress, const char* pData, UINT nCount)
+{
+	memcpy((PVOID)dwAddress, pData, nCount);
+}
+
+template <typename T>
+static T ReadValue(DWORD dwAddr)
+{
+	return *((T*)dwAddr);
 }

@@ -1,73 +1,138 @@
+
 #include "pch.h"
 
 // BE AWARE ===v
 // in order to reference other projects you need to add:
 // $(SolutionDir)Common;%(AdditionalIncludeDirectories)
 // to project properties -> c/c++ -> additional include directories
+#include "memedit.h"
+#include "hooker.h"
+#include "Common.h"
+#include "winhooks.h"
 #include "ExampleHooks.h"
-#include <ZXString.h>
-#include <Common.h>
-#include <hooker.h>
-#include <memedit.h>
+#include <cstdint>
+#include <iostream>
+#include <VirtualizerSDK/VirtualizerSDK.h>
+//#pragma optimize("", off)
+//#pragma optimize("", on)
 
-// BE AWARE ===v
-// in order to fix the detours.lib link error you need to replace
-// project properties -> vc++ directories -> library directories 
-// with $(SolutionDir)Common;$(LibraryPath)
+using namespace std;
+							
+#define CRC_MAPLESTORY		0x8CA914E8
 
-/// ================ \\\
+ULONG crc32_table[256];
+ULONG ulPolynomial = 0x04c11db7;
+ULONG Reflect(ULONG ref, char ch)
+{
+	ULONG value(0);
+	for (int i = 1; i < (ch + 1); i++)
+	{
+		if (ref & 1)
+			value |= 1 << (ch - i);
+		ref >>= 1;
+	}
+	return value;
+}
+
+long FileSize(FILE* input)
+{
+	long fileSizeBytes;
+	fseek(input, 0, SEEK_END);
+	fileSizeBytes = ftell(input);
+	fseek(input, 0, SEEK_SET);
+	return fileSizeBytes;
+}
+
+void InitCrcTable()
+{
+	for (int i = 0; i <= 0xFF; i++)
+	{
+		crc32_table[i] = Reflect(i, 8) << 24;
+		for (int j = 0; j < 8; j++)
+			crc32_table[i] = (crc32_table[i] << 1) ^ (crc32_table[i] & (1 << 31) ? ulPolynomial : 0);
+		crc32_table[i] = Reflect(crc32_table[i], 32);
+	}
+
+}
+
+unsigned int Get_CRC(unsigned char* buffer, ULONG bufsize)
+{
+	ULONG  crc(0xffffffff);
+	int len;
+	len = bufsize;
+	for (int i = 0; i < len; i++)
+		crc = (crc >> 8) ^ crc32_table[(crc & 0xFF) ^ buffer[i]];
+
+	return crc ^ 0xffffffff;
+}
+
+uint32_t check_for_crc(char* filename)
+{
+	FILE* fp1;
+	fp1 = fopen(filename, "rb");
+	if (!ferror(fp1))
+	{
+		char crccheck[256];
+		long bufsize = FileSize(fp1), result;
+		unsigned char* buffer = new unsigned char[bufsize];
+		result = fread(buffer, 1, bufsize, fp1);
+		fclose(fp1);
+		return Get_CRC(buffer, bufsize);
+	}
+	return 0;
+}
+
+template <typename I> string n2hexstr(I w, size_t hex_len = sizeof(I) << 1) {
+	static const char* digits = "0123456789ABCDEF";
+	string rc(hex_len, '0');
+	for (size_t i = 0, j = (hex_len - 1) * 4; i < hex_len; ++i, j -= 4)
+		rc[i] = digits[(w >> j) & 0x0f];
+	return rc;
+}
+
+VOID WINAPI ShowConsole()
+{
+	AllocConsole();
+	AttachConsole(GetCurrentProcessId());
+	freopen("CON", "w", stdout);
+	char cc[128];
+	sprintf_s(cc, "Client: %i", GetCurrentProcessId());
+	SetConsoleTitleA(cc);
+}
 
 // executed after the client is unpacked
 VOID MainFunc()
 {
-	Log(__FUNCTION__);
+	/* 
+	VIRTUALIZER_TIGER_WHITE_START
+	WriteValue<BYTE>(0x040A910, 0x55);
+	WriteValue<BYTE>(0x040A92E, 0x50);
+	VIRTUALIZER_TIGER_WHITE_END
+	return;
+	*/
 
 	return;
-
-	// below hooks only serve as examples -- they will not do anything as-is
-
-	INITMAPLEHOOK(
-		_ExampleFunc_cdecl, // pointer to original function
-		_ExampleFunc_cdecl_t, // function type
-		MapleHooks::ExampleCDecl_Hook, // function to detour to
-		0x0 // maple address
-	);
-
-	INITMAPLEHOOK(
-		_ExampleFunc_thiscall, // pointer to original function
-		_ExampleFunc_thiscall_t, // function type
-		MapleHooks::ExampleFunc_thiscall2, // function to detour to
-		0x0 // maple address
-	);
-
-	// edit memory
-
-	WriteValue<BYTE>(0x0, 0xEB); // address to write to, value to write
-	WriteValue<DWORD>(0x0, 0x42069);
-	WriteValue<double>(0x0, 420.69);
-
-	PatchNop(0x0, 6); // address to write to, number of nops
-
-	PatchRetZero(0x0); // function start address to return zero at
 }
 
-// prolly don't edit this region if youre a noob
 #pragma region EntryThread
+
+static Common* CommonHooks;
 
 // main thread
 VOID MainProc()
 {
-	Log(__FUNCTION__);
+	/*
+	VIRTUALIZER_FISH_RED_START
+	InitCrcTable();
+	char exe[] = "MapleStory.exe";
+	string h = n2hexstr(CRC_MAPLESTORY);
+	string e = n2hexstr(check_for_crc(exe));
+	if (check_for_crc(exe) != CRC_MAPLESTORY) { exit(0); }
+	VIRTUALIZER_FISH_RED_END
+	*/
 
-	Common::CreateInstance
-	(
-		TRUE,			// true if you want to hook windows libraries (besides mutex) set this to false if you already edited your IP into the client (eg v83 localhosts)
-		MainFunc,		// function to be executed after client is unpacked
-		"127.0.0.1",	// IP to connect to (your server IP)
-		"127.0.0.1"		// IP to redirect from (nexon IP)
-	);
+	MainFunc();
 }
-
 // dll entry point
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
@@ -75,16 +140,14 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	{
 	case DLL_PROCESS_ATTACH:
 	{
-		Log("DLL_PROCESS_ATTACH");
-
 		DisableThreadLibraryCalls(hModule);
 		CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&MainProc, NULL, 0, 0);
 		break;
 	}
 	case DLL_PROCESS_DETACH:
 	{
-		Log("DLL_PROCESS_DETACH");
-		Common::GetInstance()->~Common();
+		cout << "DLL_PROCESS_DETACH";
+		CommonHooks->~Common();
 		break;
 	}
 	}

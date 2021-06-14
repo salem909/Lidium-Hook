@@ -9,7 +9,8 @@
 
 // add headers that you want to pre-compile here
 #include "framework.h"
+#include "commonconfig.h"
 #include "MapleAPI.h"
-#include <logger.h>
+#include "logger.h"
 
 #endif //PCH_H

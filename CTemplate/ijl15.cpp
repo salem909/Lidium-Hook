@@ -1,5 +1,4 @@
 #include "pch.h"
-#include <Common.h> // for ijl compiler macro
 
 #if MAPLE_INJECT_USE_IJL
 
