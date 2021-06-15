@@ -1,5 +1,4 @@
 Credits:
-
 MinimumDelta
 
 F0
