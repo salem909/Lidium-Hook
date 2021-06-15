@@ -1,5 +1,1 @@
-Credits:
-MinimumDelta
-
-F0
-
+Credits: MinimumDelta, F0
