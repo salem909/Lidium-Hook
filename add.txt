@@ -1,3 +1,4 @@
 # Please keep formatting consistent 
 
 Chat Color address -> 00A483D7
+Server Message XCord-> 008B2E7E ( -780~780 , change to push FFFFFCF4 for (0,0) ) *Default -512 invsig
